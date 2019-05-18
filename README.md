@@ -19,7 +19,7 @@ into a markdown file. This markdown file can be imported into the open source we
 - Load project into Chrome by clicking »Load unpacked« and selecting the project root folder
 – Go to [Chefkoch](<https://www.chefkoch.de>) or [Lecker](<https://www.lecker.de>)
 - Click extension in Toolbar
-– Download markdown file by clicking »Download recipe as markdown« in viewport
+- Download markdown file by clicking »Download recipe as markdown« in viewport
 
 ## Usage with chef
 
