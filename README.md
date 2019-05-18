@@ -14,7 +14,7 @@ into a markdown file. This markdown file can be imported into the open source we
 
 - `git clone git@github.com:janschill/chef-scraper.git`
 - Open Google Chrome
-- Go to [chrome://extensions/](chrome://extensions/)
+- Go to `chrome://extensions/`
 - Enable »Developer mode«
 - Load project into Chrome by clicking »Load unpacked« and selecting the project root folder
 – Go to [Chefkoch](<https://www.chefkoch.de>) or [Lecker](<https://www.lecker.de>)
