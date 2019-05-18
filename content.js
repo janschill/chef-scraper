@@ -11,9 +11,17 @@ class Markdown {
   }
 
   generateFile() {
+    this.file += this.generateMeta();
     this.file += this.generateHeading(1, this.heading);
     this.file += this.generateIngredients('Zutaten');
     this.file += this.generateInstructionText('Zubereitung');
+  }
+
+  generateMeta() {
+    const categories = this.appendEntries(this.categories, ',');
+    const source = window.location.href;
+
+    return `<!--\ncategories: ${categories}\nsource: ${source}-->\n\n`;
   }
 
   generateHeading(headingLevel, heading) {
@@ -58,6 +66,19 @@ class Markdown {
     });
 
     return `${tableHeader}${tableBody}\n`;
+  }
+
+  appendEntries(entries, seperator) {
+    let text = '';
+    entries.forEach((entry, index, array) => {
+      if (index === array.length - 1) {
+        text += entry;
+      } else {
+        text += `${entry}${seperator} `;
+      }
+    });
+
+    return text;
   }
 
   getHeading() {
@@ -126,14 +147,14 @@ class Scraper {
     const $preparation = document.querySelector(domElementName);
 
     this.scrapedContent.instructionText = this.removeWhitespaceFromStart(
-      this.removeDoubleWhitespace(this.removeHtmlTags($preparation.textContent))
+      this.removeDoubleWhitespace(this.replaceTagWithEmptyLine($preparation.textContent))
     );
   }
 
-  removeHtmlTags(text) {
+  replaceTagWithEmptyLine(text) {
     const regex = /(<([^>]+)>)/gi;
 
-    return text.replace(regex, '');
+    return text.replace(regex, '\n');
   }
 
   removeWhitespaceFromStart(text) {
