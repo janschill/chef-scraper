@@ -169,11 +169,7 @@ class Scraper {
   scrapeInstructionText(domElementName) {
     const $preparation = document.querySelector(domElementName);
 
-    this.scrapedContent.instructionText = this.removeWhitespaceFromStart(
-      this.removeDoubleWhitespace(
-        this.replaceTagWithEmptyLine($preparation.textContent)
-      )
-    );
+    this.scrapedContent.instructionText = $preparation.innerText;
   }
 
   replaceTagWithEmptyLine(text) {
