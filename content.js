@@ -1,5 +1,9 @@
 const CHEFKOCH_URL = 'https://www.chefkoch.de/';
-const REZEPTE_URL = 'https://www.rezepte.de/';
+const LECKER_URL = 'https://www.lecker.de/';
+const SITE_ENUM = {
+  CHEFKOCH: 'chefkoch',
+  LECKER: 'lecker'
+};
 
 class Helper {
   static convertUmlaut(value) {
@@ -21,6 +25,10 @@ class Helper {
     const valueLowerCased = value.toLowerCase();
 
     return valueLowerCased.split(' ').join('_');
+  }
+
+  static isOnlyWhitespace(value) {
+    return !value.replace(/\s/g, '').length;
   }
 }
 
@@ -127,76 +135,100 @@ class Scraper {
       instructionText: ''
     };
 
-    const selectors = this.setSiteSpecificSelectors(url);
-    this.startScraping(selectors);
+    this.startScraping(url);
   }
 
-  setSiteSpecificSelectors(url) {
+  startScraping(url) {
     if (url.includes(CHEFKOCH_URL)) {
-      return {
-        heading: '.page-title',
-        categories: '.tagcloud',
-        ingredients: '.incredients',
-        instructionText: '.instructions',
-      };
-    } else if (url.includes(REZEPTE_URL)) {
-      return {
-        heading: '.article-header',
-        categories: '',
-        ingredients: '',
-        instructionText: '',
-      };
+      this.scrapeSite(SITE_ENUM.CHEFKOCH);
+    } else if (url.includes(LECKER_URL)) {
+      this.scrapeSite(SITE_ENUM.LECKER);
     }
   }
 
-  startScraping(selectors) {
-    this.scrapeHeading(selectors.heading);
-    this.scrapeCategories(selectors.categories);
-    this.scrapeIngredients(selectors.ingredients);
-    this.scrapeInstructionText(selectors.instructionText);
+  scrapeSite(siteName) {
+    this.scrapeHeading(siteName);
+    this.scrapeCategories(siteName);
+    this.scrapeIngredients(siteName);
+    this.scrapeInstructionText(siteName);
   }
 
   getScrapedContent() {
     return this.scrapedContent;
   }
 
-  scrapeHeading(domElementName) {
-    const $heading = document.querySelector(domElementName);
-
-    this.scrapedContent.heading = $heading.textContent;
+  scrapeHeading(siteName) {
+    if (siteName === SITE_ENUM.CHEFKOCH) {
+      const $heading = document.querySelector('.page-title');
+      this.scrapedContent.heading = $heading.textContent;
+    } else if (siteName === SITE_ENUM.LECKER) {
+      const $article = document.querySelector('.article.recipe');
+      const $articleHeader = $article.querySelector('.article-header');
+      const $heading = $articleHeader.querySelector('h1');
+      this.scrapedContent.heading = $heading.innerText;
+    }
   }
 
-  scrapeCategories(domElementName) {
-    const $categoryListItems = document.querySelector(domElementName).children;
+  scrapeCategories(siteName) {
+    let categoryListSelectorClass = '';
+
+    if (siteName === SITE_ENUM.CHEFKOCH) {
+      categoryListSelectorClass = '.tagcloud';
+    } else if (siteName === SITE_ENUM.LECKER) {
+      categoryListSelectorClass = '.list.list--tags';
+    }
+
+    const $categoryListItems = document.querySelector(categoryListSelectorClass).children;
     const categoryNames = [];
 
     for (let i = 0; i < $categoryListItems.length; i++) {
-      categoryNames.push($categoryListItems[i].textContent);
+      if (siteName === SITE_ENUM.CHEFKOCH) {
+        categoryNames.push($categoryListItems[i].innerText);
+      } else if (siteName === SITE_ENUM.LECKER) {
+        categoryNames.push($categoryListItems[i].firstElementChild.innerText);
+      }
     }
-
     this.scrapedContent.categories = categoryNames;
   }
 
-  scrapeIngredients(domElementName) {
-    const $ingredientsTableBody = document.querySelector(domElementName)
-      .children[0];
-    const $ingredientsTableRows = $ingredientsTableBody.children;
+  scrapeIngredients(siteName) {
+    let $ingredientsItems = null;
+    if (siteName === SITE_ENUM.CHEFKOCH) {
+      $ingredientsItems = document.querySelector('.incredients')
+        .children[0].children;
+    } else if (siteName === SITE_ENUM.LECKER) {
+      $ingredientsItems = document.querySelector('.list.list--ingredients ').children;
+    }
+    const $ingredientsTableRows = $ingredientsItems;
     const ingredients = [];
 
     for (let i = 0; i < $ingredientsTableRows.length; i++) {
+      const amount = $ingredientsTableRows[i].children[0].innerText;
+      const name = $ingredientsTableRows[i].children[1].innerText;
       ingredients.push({
-        amount: $ingredientsTableRows[i].children[0].innerText,
-        name: $ingredientsTableRows[i].children[1].innerText
+        amount: Helper.isOnlyWhitespace(amount) ? '-' : amount,
+        name: Helper.isOnlyWhitespace(name) ? '-' : name,
       });
     }
 
     this.scrapedContent.ingredients = ingredients;
   }
 
-  scrapeInstructionText(domElementName) {
-    const $preparation = document.querySelector(domElementName);
+  scrapeInstructionText(siteName) {
+    if (siteName === SITE_ENUM.CHEFKOCH) {
+      const $preparation = document.querySelector('.instructions');
 
-    this.scrapedContent.instructionText = $preparation.innerText;
+      this.scrapedContent.instructionText = $preparation.innerText;
+    } else if (siteName === SITE_ENUM.LECKER) {
+      const $preparation = document.querySelector('.list.list--preparation');
+      const $preparationItems = $preparation.querySelectorAll('dd');
+      let text = '';
+      for (let i = 0; i < $preparationItems.length; i++) {
+        text += `${$preparationItems[i].innerText}\n\n`;
+      }
+
+      this.scrapedContent.instructionText = text;
+    }
   }
 
   replaceTagWithEmptyLine(text) {

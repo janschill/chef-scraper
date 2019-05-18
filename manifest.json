@@ -6,7 +6,7 @@
     {
       "matches": [
         "https://www.chefkoch.de/*",
-        "https://www.rezepte.de/*"
+        "https://www.lecker.de/*"
       ],
       "js": ["content.js"]
     }
