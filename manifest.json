@@ -5,7 +5,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://www.chefkoch.de/*"
+        "https://www.chefkoch.de/*",
+        "https://www.rezepte.de/*"
       ],
       "js": ["content.js"]
     }

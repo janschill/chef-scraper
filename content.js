@@ -1,3 +1,6 @@
+const CHEFKOCH_URL = 'https://www.chefkoch.de/';
+const REZEPTE_URL = 'https://www.rezepte.de/';
+
 class Helper {
   static convertUmlaut(value) {
     value = value.toLowerCase();
@@ -116,17 +119,41 @@ class Markdown {
 class Scraper {
   #scrapedContent;
 
-  constructor() {
+  constructor(url) {
     this.scrapedContent = {
       heading: '',
       categories: '',
       ingredients: '',
       instructionText: ''
     };
-    this.scrapeHeading('.page-title');
-    this.scrapeCategories('.tagcloud');
-    this.scrapeIngredients('.incredients');
-    this.scrapeInstructionText('.instructions');
+
+    const selectors = this.setSiteSpecificSelectors(url);
+    this.startScraping(selectors);
+  }
+
+  setSiteSpecificSelectors(url) {
+    if (url.includes(CHEFKOCH_URL)) {
+      return {
+        heading: '.page-title',
+        categories: '.tagcloud',
+        ingredients: '.incredients',
+        instructionText: '.instructions',
+      };
+    } else if (url.includes(REZEPTE_URL)) {
+      return {
+        heading: '.article-header',
+        categories: '',
+        ingredients: '',
+        instructionText: '',
+      };
+    }
+  }
+
+  startScraping(selectors) {
+    this.scrapeHeading(selectors.heading);
+    this.scrapeCategories(selectors.categories);
+    this.scrapeIngredients(selectors.ingredients);
+    this.scrapeInstructionText(selectors.instructionText);
   }
 
   getScrapedContent() {
@@ -190,8 +217,8 @@ class Scraper {
   }
 }
 
-function initScraping() {
-  const scraper = new Scraper();
+function initScraping(url) {
+  const scraper = new Scraper(url);
 
   return scraper.getScrapedContent();
 }
@@ -219,7 +246,7 @@ function createAnchorToFile(markdown) {
 }
 
 function initScript() {
-  const scrapedContent = initScraping();
+  const scrapedContent = initScraping(window.location.href);
   const markdown = new Markdown(
     scrapedContent.heading,
     scrapedContent.categories,
