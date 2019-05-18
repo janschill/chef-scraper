@@ -1,3 +1,26 @@
+class Helper {
+  static convertUmlaut(value) {
+    value = value.toLowerCase();
+    value = value.replace(/ä/g, 'ae');
+    value = value.replace(/ö/g, 'oe');
+    value = value.replace(/ü/g, 'ue');
+    value = value.replace(/ß/g, 'ss');
+    value = value.replace(/ /g, '-');
+    value = value.replace(/\./g, '');
+    value = value.replace(/,/g, '');
+    value = value.replace(/\(/g, '');
+    value = value.replace(/\)/g, '');
+
+    return value;
+  }
+
+  static convertToSnakeCase(value) {
+    const valueLowerCased = value.toLowerCase();
+
+    return valueLowerCased.split(' ').join('_');
+  }
+}
+
 class Markdown {
   #file;
 
@@ -21,7 +44,7 @@ class Markdown {
     const categories = this.appendEntries(this.categories, ',');
     const source = window.location.href;
 
-    return `<!--\ncategories: ${categories}\nsource: ${source}-->\n\n`;
+    return `<!--\ncategories: ${categories}\nsource: ${source}\n-->\n\n`;
   }
 
   generateHeading(headingLevel, heading) {
@@ -147,7 +170,9 @@ class Scraper {
     const $preparation = document.querySelector(domElementName);
 
     this.scrapedContent.instructionText = this.removeWhitespaceFromStart(
-      this.removeDoubleWhitespace(this.replaceTagWithEmptyLine($preparation.textContent))
+      this.removeDoubleWhitespace(
+        this.replaceTagWithEmptyLine($preparation.textContent)
+      )
     );
   }
 
@@ -187,7 +212,10 @@ function createAnchorToFile(markdown) {
   const $a = document.createElement('a');
   const heading = markdown.getHeading();
   $a.href = writeToFile(markdown.getFile());
-  $a.download = `${heading}.md`;
+  const headingConverted = Helper.convertUmlaut(
+    Helper.convertToSnakeCase(heading)
+  );
+  $a.download = `${headingConverted}.md`;
   $a.style.fontSize = '48px';
   $a.textContent = 'Download recipe as markdown';
 
