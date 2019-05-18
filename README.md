@@ -23,4 +23,4 @@ into a markdown file. This markdown file can be imported into the open source we
 
 ## Usage with chef
 
-Go the GitHub repository of [chef](https://github.com/runepiper/chef) and load the downloaded markdown file into the recipe folder.
+Go the GitHub repository of [chef](https://github.com/runepiper/chef) and load the downloaded markdown file into the recipes folder.
