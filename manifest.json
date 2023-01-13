@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "chef scraper",
   "version": "0.01",
   "content_scripts": [
@@ -11,7 +11,7 @@
       "js": ["content.js"]
     }
   ],
-  "browser_action": {
+  "action": {
     "default_icon": "chef.png"
   }
 }
