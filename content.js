@@ -185,7 +185,9 @@ class Scraper {
       if (siteName === SITE_ENUM.CHEFKOCH) {
         categoryNames.push($categoryListItems[i].innerText);
       } else if (siteName === SITE_ENUM.LECKER) {
-        categoryNames.push($categoryListItems[i].firstElementChild.innerText);
+        if($categoryListItems[i].firstElementChild != null){
+          categoryNames.push($categoryListItems[i].firstElementChild.innerText);
+        }
       }
     }
     this.scrapedContent.categories = categoryNames;
